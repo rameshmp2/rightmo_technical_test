@@ -1,0 +1,102 @@
+version: '3.8'
+
+# Full-Stack Docker Compose Configuration
+# This file orchestrates both backend (Laravel) and frontend (Next.js) services
+
+services:
+  # PHP-FPM Application Server
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: laravel-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - fullstack-network
+    depends_on:
+      - db
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: laravel-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./backend/docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - fullstack-network
+    depends_on:
+      - app
+
+  # MariaDB Database
+  db:
+    image: mariadb:10.4
+    container_name: laravel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: technical_test
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+      MYSQL_USER: laravel
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./backend/docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - fullstack-network
+
+  # PhpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: laravel-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    networks:
+      - fullstack-network
+    depends_on:
+      - db
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nextjs-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    networks:
+      - fullstack-network
+    stdin_open: true
+    tty: true
+
+# Networks
+networks:
+  fullstack-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local
