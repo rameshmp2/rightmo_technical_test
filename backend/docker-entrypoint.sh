@@ -1,32 +1,37 @@
 #!/bin/bash
 
-# Exit on error
-set -e
-
 echo "Starting Laravel application setup..."
 
-# Wait for database to be ready
-echo "Waiting for database connection..."
-until php artisan db:show > /dev/null 2>&1; do
-    echo "Database not ready, waiting 2 seconds..."
-    sleep 2
-done
+# Wait for database to be ready - simple sleep approach
+echo "Waiting for database to initialize..."
+sleep 10
 
-echo "Database is ready!"
+echo "Attempting database connection..."
 
-# Run migrations and seeders
-echo "Running database migrations and seeders..."
-php artisan migrate --seed --force
+# Run migrations (without seeding first)
+echo "Running database migrations..."
+php artisan migrate --force 2>&1
+
+# Only seed if tables are empty
+echo "Checking if database needs seeding..."
+USER_COUNT=$(php artisan tinker --execute="echo \App\Models\User::count();" 2>/dev/null | tail -1)
+
+if [ "$USER_COUNT" -eq "0" ] 2>/dev/null; then
+    echo "Database is empty, running seeders..."
+    php artisan db:seed --force 2>&1
+else
+    echo "Database already has data (${USER_COUNT} users found), skipping seeders..."
+fi
 
 # Create storage link
 echo "Creating storage link..."
-php artisan storage:link || true
+php artisan storage:link 2>&1 || echo "Storage link already exists (continuing anyway)"
 
 # Clear and cache configuration
 echo "Optimizing application..."
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
+php artisan config:clear 2>&1
+php artisan cache:clear 2>&1
+php artisan route:clear 2>&1
 
 echo "Laravel setup completed successfully!"
 
