@@ -292,7 +292,31 @@ docker-compose exec app rm -f public/storage
 docker-compose exec app php artisan storage:link
 ```
 
-### Issue 6: Container keeps restarting
+### Issue 6: "vendor/autoload.php not found"
+
+**Error:**
+```
+Fatal error: Failed opening required '/var/www/vendor/autoload.php'
+```
+
+**Cause:** Composer dependencies weren't installed during Docker build.
+
+**Solution:**
+```bash
+# Rebuild with --build flag to ensure composer install runs
+docker-compose down
+docker-compose up -d --build
+
+# Wait for setup
+sleep 70
+
+# Verify it worked
+docker-compose exec app php artisan --version
+```
+
+**Root cause fixed:** The Dockerfile now includes `RUN composer install` to ensure dependencies are always installed during build.
+
+### Issue 7: Container keeps restarting
 
 **Check logs:**
 ```bash
@@ -303,6 +327,7 @@ docker logs laravel-app
 - Database not ready (wait 10-20 seconds)
 - Syntax error in entrypoint script
 - PHP-FPM not starting
+- Missing composer dependencies (see Issue 6)
 
 ---
 

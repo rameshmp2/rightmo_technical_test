@@ -80,13 +80,28 @@ technical_test/
 
 ### 🐳 Quick Start with Docker (Recommended)
 
-The easiest way to run this project is using Docker. All services are containerized and can be started with a single command.
+**For new users receiving this project:** You only need ONE command!
+
+```bash
+cd technical_test
+docker-compose up -d
+```
+
+**That's it!** Wait 70 seconds and everything is ready:
+- ✅ Database automatically created
+- ✅ All tables created via migrations
+- ✅ Sample data seeded (2 users, 4 categories, 20 products)
+- ✅ Application ready at http://localhost:3000
+
+📖 **[Complete Setup Instructions](SETUP_INSTRUCTIONS.md)** - Detailed guide for new users
+
+---
 
 #### Prerequisites
 - Docker Desktop (Windows/Mac) or Docker Engine (Linux)
 - Docker Compose (included with Docker Desktop)
 
-#### Quick Start Steps
+#### Detailed Setup Steps
 
 1. **Clone the repository and navigate to the project:**
    ```bash
@@ -530,13 +545,12 @@ This project includes comprehensive documentation beyond this README:
 
 ### 📖 Essential Guides
 - **[QUICK_START.md](QUICK_START.md)** - ⚡ Fastest way to get started (2 minutes)
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Step-by-step detailed setup instructions
 - **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - 🔧 Database migration commands and troubleshooting
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Complete project status and achievements
 
 ### 🎁 Bonus Features
 - **[backend/DOCKER.md](backend/DOCKER.md)** - Docker setup and configuration
 - **[DOCKER_AUTOMATION.md](DOCKER_AUTOMATION.md)** - Automated setup details
+- **[DOCKERFILE_FIX.md](DOCKERFILE_FIX.md)** - Composer install fix documentation
 - **[FRESH_INSTALL_ANALYSIS.md](FRESH_INSTALL_ANALYSIS.md)** - Fresh install test results
 - **[backend/TESTING.md](backend/TESTING.md)** - Testing guide with all 34 tests
 - **[backend/API_DOCUMENTATION.md](backend/API_DOCUMENTATION.md)** - Complete API reference

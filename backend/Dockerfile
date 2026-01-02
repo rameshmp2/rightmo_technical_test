@@ -30,6 +30,9 @@ COPY . /var/www
 # Copy existing application directory permissions
 COPY --chown=www-data:www-data . /var/www
 
+# Install Composer dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
 # Copy entrypoint script and make it executable
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
