@@ -154,10 +154,12 @@ curl -X POST http://localhost:8000/api/login \
 ### 1. backend/Dockerfile
 **Added:**
 ```dockerfile
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+RUN composer install --no-interaction --optimize-autoloader
 ```
 
 **Why:** Ensures Composer dependencies are installed during Docker build
+
+**Note:** Removed `--no-dev` flag to include all dependencies (dev dependencies needed for tinker, testing, etc.)
 
 ### 2. backend/docker-entrypoint.sh
 **Changed Logic:**
@@ -166,7 +168,18 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 **Why:** Ensures new migrations run automatically
 
-### 3. backend/database/seeders/ProductSeeder.php
+### 3. docker-compose.yml
+**Added Anonymous Volume:**
+```yaml
+volumes:
+  - ./backend:/var/www
+  - /var/www/vendor  # ← Preserves vendor directory
+  - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+```
+
+**Why:** The `./backend:/var/www` mount was overwriting the vendor directory that was installed during Docker build. The anonymous volume prevents this.
+
+### 4. backend/database/seeders/ProductSeeder.php
 **Fixed:**
 - Creates categories first using `Category::firstOrCreate()`
 - Uses `category_id` (foreign key) instead of `category` (string)

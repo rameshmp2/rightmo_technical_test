@@ -214,6 +214,40 @@ All tests passed! ✅
 
 The missing `composer install` command in the Dockerfile prevented Composer dependencies from being installed, causing the application to fail.
 
-**Fix:** Added `RUN composer install --no-interaction --optimize-autoloader --no-dev` to the Dockerfile after copying application files.
+**Fix:** Added `RUN composer install --no-interaction --optimize-autoloader` to the Dockerfile after copying application files.
+
+**Additional Fix Required:** The docker-compose.yml volume mount `./backend:/var/www` was overwriting the vendor directory. Added anonymous volume `/var/www/vendor` to preserve it.
 
 **Result:** Application now builds correctly with all dependencies and migrations run automatically on startup.
+
+## Volume Mount Issue (Added 2026-01-02)
+
+### Problem Discovered
+
+Even with `composer install` in the Dockerfile, the vendor directory was missing at runtime because:
+
+1. Docker builds the image with vendor directory installed
+2. docker-compose.yml mounts `./backend:/var/www` as a volume
+3. This mount **overwrites** the container's /var/www with the local backend folder
+4. Local backend folder doesn't have vendor (it's in .gitignore)
+5. Result: vendor directory disappears at runtime
+
+### Solution
+
+Added anonymous volume for vendor directory in docker-compose.yml:
+
+```yaml
+volumes:
+  - ./backend:/var/www
+  - /var/www/vendor  # ← Prevents vendor from being overwritten
+  - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+```
+
+This tells Docker: "Mount the backend folder, BUT don't overwrite the vendor subdirectory - use the one from the built image instead."
+
+### Why This Pattern Is Needed
+
+This is a common pattern in Docker development setups:
+- Mount source code for live editing (hot reload)
+- Preserve installed dependencies (vendor, node_modules)
+- Best of both worlds: development flexibility + working dependencies

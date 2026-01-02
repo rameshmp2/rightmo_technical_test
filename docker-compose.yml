@@ -14,6 +14,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
       - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       - fullstack-network

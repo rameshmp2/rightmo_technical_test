@@ -521,6 +521,35 @@ Two test users are created during seeding:
 - Clear browser localStorage and try logging in again
 - Verify Sanctum configuration in `backend/config/sanctum.php`
 
+### Docker: vendor/autoload.php Not Found Error
+**Error:** `Fatal error: Failed opening required '/var/www/vendor/autoload.php'`
+
+**Quick Fix:**
+```bash
+# Install dependencies inside container
+docker exec laravel-app composer install --no-interaction --optimize-autoloader
+
+# Verify it worked
+docker exec laravel-app php artisan --version
+```
+
+**Permanent Fix:** This issue is now resolved in the docker-compose.yml with an anonymous volume for `/var/www/vendor`. See [VENDOR_DIRECTORY_FIX.md](VENDOR_DIRECTORY_FIX.md) for details.
+
+### Docker: Migrations Not Running
+**Solution:**
+```bash
+# Wait at least 70 seconds after starting containers
+sleep 70
+
+# Check logs to verify migrations ran
+docker logs laravel-app | grep "Running database migrations"
+
+# Manual fallback if needed
+docker exec laravel-app php artisan migrate:fresh --seed --force
+```
+
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for comprehensive troubleshooting.
+
 ## Production Deployment Notes
 
 For production deployment, consider:
@@ -551,7 +580,9 @@ This project includes comprehensive documentation beyond this README:
 - **[backend/DOCKER.md](backend/DOCKER.md)** - Docker setup and configuration
 - **[DOCKER_AUTOMATION.md](DOCKER_AUTOMATION.md)** - Automated setup details
 - **[DOCKERFILE_FIX.md](DOCKERFILE_FIX.md)** - Composer install fix documentation
+- **[VENDOR_DIRECTORY_FIX.md](VENDOR_DIRECTORY_FIX.md)** - Volume mount issue fix
 - **[FRESH_INSTALL_ANALYSIS.md](FRESH_INSTALL_ANALYSIS.md)** - Fresh install test results
+- **[FINAL_SETUP_SUMMARY.md](FINAL_SETUP_SUMMARY.md)** - Production-ready setup summary
 - **[backend/TESTING.md](backend/TESTING.md)** - Testing guide with all 34 tests
 - **[backend/API_DOCUMENTATION.md](backend/API_DOCUMENTATION.md)** - Complete API reference
 
