@@ -15,11 +15,11 @@ DB_USER="${DB_USERNAME:-root}"
 DB_PASS="${DB_PASSWORD:-root}"
 
 echo "Checking if database '${DB_NAME}' exists..."
-DB_EXISTS=$(mysql -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}'" 2>/dev/null | grep -c "${DB_NAME}")
+DB_EXISTS=$(mysql --skip-ssl -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${DB_NAME}'" 2>/dev/null | grep -c "${DB_NAME}")
 
 if [ "$DB_EXISTS" -eq "0" ]; then
     echo "Database '${DB_NAME}' not found. Creating database..."
-    mysql -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1
+    mysql --skip-ssl -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1
     echo "Database '${DB_NAME}' created successfully!"
     RUN_MIGRATIONS=true
 else
