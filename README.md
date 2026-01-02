@@ -287,9 +287,18 @@ docker-compose restart nginx
 docker-compose restart
 ```
 
+**Migrations not running:**
+If you think migrations aren't running on fresh install:
+1. Wait 70 seconds for setup to complete
+2. Check logs: `docker logs laravel-app`
+3. Manual fallback: `docker-compose exec app php artisan migrate:fresh --seed`
+
+See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for complete migration commands and troubleshooting.
+
 For detailed Docker documentation, see:
 - [backend/DOCKER.md](backend/DOCKER.md) - Backend Docker configuration
 - [frontend/DOCKER.md](frontend/DOCKER.md) - Frontend Docker configuration
+- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Migration commands and troubleshooting
 
 ---
 
@@ -522,10 +531,13 @@ This project includes comprehensive documentation beyond this README:
 ### 📖 Essential Guides
 - **[QUICK_START.md](QUICK_START.md)** - ⚡ Fastest way to get started (2 minutes)
 - **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Step-by-step detailed setup instructions
+- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - 🔧 Database migration commands and troubleshooting
 - **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Complete project status and achievements
 
 ### 🎁 Bonus Features
 - **[backend/DOCKER.md](backend/DOCKER.md)** - Docker setup and configuration
+- **[DOCKER_AUTOMATION.md](DOCKER_AUTOMATION.md)** - Automated setup details
+- **[FRESH_INSTALL_ANALYSIS.md](FRESH_INSTALL_ANALYSIS.md)** - Fresh install test results
 - **[backend/TESTING.md](backend/TESTING.md)** - Testing guide with all 34 tests
 - **[backend/API_DOCUMENTATION.md](backend/API_DOCUMENTATION.md)** - Complete API reference
 
@@ -533,7 +545,7 @@ This project includes comprehensive documentation beyond this README:
 - **[backend/README.md](backend/README.md)** - Backend-specific documentation
 - **[frontend/README.md](frontend/README.md)** - Frontend-specific documentation
 
-**Total**: 11 comprehensive documentation files covering all aspects of the project.
+**Total**: 14 comprehensive documentation files covering all aspects of the project.
 
 ## Bonus Features Implemented
 
