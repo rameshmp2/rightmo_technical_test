@@ -78,14 +78,184 @@ technical_test/
 
 ## Installation & Setup
 
-### Prerequisites
+### 🐳 Quick Start with Docker (Recommended)
+
+The easiest way to run this project is using Docker. All services are containerized and can be started with a single command.
+
+#### Prerequisites
+- Docker Desktop (Windows/Mac) or Docker Engine (Linux)
+- Docker Compose (included with Docker Desktop)
+
+#### Quick Start Steps
+
+1. **Clone the repository and navigate to the project:**
+   ```bash
+   cd technical_test
+   ```
+
+2. **Start all services using Docker Compose:**
+   ```bash
+   docker-compose up -d
+   ```
+
+   This single command will:
+   - Build and start 5 services (Frontend, Backend, Nginx, MariaDB, PhpMyAdmin)
+   - Set up networking between containers
+   - Initialize the database
+   - Configure all environment variables automatically
+
+3. **Run initial database setup:**
+   ```bash
+   docker-compose exec backend php artisan migrate --seed
+   docker-compose exec backend php artisan storage:link
+   ```
+
+4. **Access the application:**
+   - **Frontend**: [http://localhost:3000](http://localhost:3000)
+   - **Backend API**: [http://localhost:8000](http://localhost:8000)
+   - **PhpMyAdmin**: [http://localhost:8080](http://localhost:8080)
+     - Username: `root`
+     - Password: `root_password`
+
+5. **Login with test credentials:**
+   - Email: `test@example.com`
+   - Password: `password123`
+
+#### Docker Services Overview
+
+The Docker setup includes 5 containerized services:
+
+| Service | Container Name | Port | Description |
+|---------|---------------|------|-------------|
+| Frontend | `frontend` | 3000 | Next.js application |
+| Backend | `backend` | 9000 | PHP-FPM (Laravel API) |
+| Nginx | `nginx` | 8000 | Web server for backend |
+| Database | `mariadb` | 3306 | MariaDB 10.4 |
+| PhpMyAdmin | `phpmyadmin` | 8080 | Database management UI |
+
+#### Useful Docker Commands
+
+**View running containers:**
+```bash
+docker-compose ps
+```
+
+**View logs:**
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f backend
+docker-compose logs -f frontend
+```
+
+**Stop all services:**
+```bash
+docker-compose down
+```
+
+**Stop and remove all data (including database):**
+```bash
+docker-compose down -v
+```
+
+**Rebuild containers after code changes:**
+```bash
+docker-compose up -d --build
+```
+
+**Access container shell:**
+```bash
+# Backend container
+docker-compose exec backend bash
+
+# Frontend container
+docker-compose exec frontend sh
+```
+
+**Run Laravel artisan commands:**
+```bash
+docker-compose exec backend php artisan migrate
+docker-compose exec backend php artisan db:seed
+docker-compose exec backend php artisan tinker
+```
+
+**Run Composer commands:**
+```bash
+docker-compose exec backend composer install
+docker-compose exec backend composer update
+```
+
+**Run npm commands:**
+```bash
+docker-compose exec frontend npm install
+docker-compose exec frontend npm run build
+```
+
+#### Docker Troubleshooting
+
+**Port already in use:**
+If you get a "port already in use" error, you can either:
+- Stop the conflicting service (e.g., stop XAMPP/MAMP)
+- Change ports in `docker-compose.yml`
+
+**Database connection issues:**
+```bash
+# Check if database container is running
+docker-compose ps mariadb
+
+# Check database logs
+docker-compose logs mariadb
+
+# Restart database
+docker-compose restart mariadb
+```
+
+**Permission issues:**
+```bash
+# Fix Laravel storage permissions
+docker-compose exec backend chmod -R 777 storage bootstrap/cache
+```
+
+**Clear Laravel cache:**
+```bash
+docker-compose exec backend php artisan cache:clear
+docker-compose exec backend php artisan config:clear
+docker-compose exec backend php artisan route:clear
+```
+
+**Fresh start:**
+```bash
+# Stop everything and remove volumes
+docker-compose down -v
+
+# Rebuild and start
+docker-compose up -d --build
+
+# Run migrations and seeders
+docker-compose exec backend php artisan migrate:fresh --seed
+docker-compose exec backend php artisan storage:link
+```
+
+For detailed Docker documentation, see:
+- [backend/DOCKER.md](backend/DOCKER.md) - Backend Docker configuration
+- [frontend/DOCKER.md](frontend/DOCKER.md) - Frontend Docker configuration
+
+---
+
+### Manual Installation (Alternative)
+
+If you prefer to run the project without Docker, follow these manual setup steps:
+
+#### Prerequisites
 - PHP 8.2.12
 - Composer
 - MySQL (MariaDB 10.4.32) or compatible
 - Node.js v25.2.1
 - npm or yarn
 
-### Backend Setup
+#### Backend Setup
 
 1. **Navigate to the backend directory:**
    ```bash
