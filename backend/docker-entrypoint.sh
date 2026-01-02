@@ -2,6 +2,14 @@
 
 echo "Starting Laravel application setup..."
 
+# Ensure .env file exists
+if [ ! -f /var/www/.env ]; then
+    echo ".env file not found, copying from .env.example..."
+    cp /var/www/.env.example /var/www/.env
+    echo "Generating application key..."
+    php artisan key:generate
+fi
+
 # Wait for database server to be ready
 echo "Waiting for database server to initialize..."
 sleep 10
