@@ -16,12 +16,23 @@ The Docker setup includes a health check for the MariaDB database that:
 
 The Laravel container runs an entrypoint script ([backend/docker-entrypoint.sh](backend/docker-entrypoint.sh)) that automatically:
 
-1. **Waits for Database** - Uses `php artisan db:show` to verify database connection
-2. **Runs Migrations** - Executes `php artisan migrate --seed --force`
-3. **Seeds Database** - Populates database with test users and sample products
-4. **Creates Storage Link** - Runs `php artisan storage:link` for image uploads
-5. **Optimizes Application** - Clears configuration, cache, and route cache
+1. **Waits for Database** - Sleeps for 10 seconds to allow database to initialize
+2. **Checks Database Status** - Looks for the `migrations` table to determine if setup is needed
+3. **First-Time Setup Only** - If migrations table doesn't exist:
+   - Runs migrations: `php artisan migrate --force`
+   - Seeds database: `php artisan db:seed --force` (test users and sample products)
+   - Creates storage link: `php artisan storage:link`
+4. **Subsequent Restarts** - If database already initialized:
+   - Skips migrations and seeders
+   - Only ensures storage link exists
+5. **Always Optimizes** - Clears configuration, cache, and route cache on every startup
 6. **Starts PHP-FPM** - Launches the PHP application server
+
+**Smart Behavior:**
+- ✅ First run with empty database → Full setup (migrations + seeders)
+- ✅ Container restart with existing data → Skips setup, preserves data
+- ✅ Rebuild containers (`--build`) → Keeps existing database data
+- ✅ Fresh database (`docker-compose down -v`) → Full setup again
 
 ## Modified Files
 
@@ -29,10 +40,11 @@ The Laravel container runs an entrypoint script ([backend/docker-entrypoint.sh](
 A bash script that runs all setup tasks before starting PHP-FPM.
 
 **Key Features:**
-- Database connection retry logic
-- Automatic error detection (`set -e`)
-- Clear progress messages
-- Graceful handling of storage link (may already exist)
+- **Smart Detection** - Checks if migrations table exists to determine if setup is needed
+- **One-Time Setup** - Only runs migrations/seeders on first launch
+- **Data Preservation** - Container rebuilds don't affect existing database data
+- **Clear Progress Messages** - Shows what's being done during startup
+- **Graceful Handling** - Handles storage link conflicts gracefully
 
 ### 2. [backend/Dockerfile](backend/Dockerfile)
 Updated to:

@@ -102,11 +102,14 @@ The easiest way to run this project is using Docker. All services are containeri
    - Build and start 5 services (Frontend, Backend, Nginx, MariaDB, PhpMyAdmin)
    - Set up networking between containers
    - Initialize the database
-   - **Automatically run database migrations and seeders**
+   - **Automatically run database migrations and seeders (first time only)**
    - **Automatically create storage link**
    - Configure all environment variables automatically
 
-   **Note**: The setup is fully automated! The entrypoint script will wait for the database to be ready, then automatically run migrations, seeders, and create the storage link.
+   **Smart Setup Behavior:**
+   - ✅ **First run** (empty database) → Runs migrations and seeders
+   - ✅ **Restart/rebuild** (existing database) → Skips migrations, preserves your data
+   - ✅ **Fresh start** (`docker-compose down -v`) → Wipes database and runs full setup again
 
 3. **Access the application:**
    - **Frontend**: [http://localhost:3000](http://localhost:3000)
@@ -192,6 +195,41 @@ docker-compose exec app composer update
 ```bash
 docker-compose exec frontend npm install
 docker-compose exec frontend npm run build
+```
+
+#### Common Docker Scenarios
+
+**Rebuild containers without affecting database:**
+```bash
+# Rebuild app and frontend, keep database data
+docker-compose up -d --build app frontend nginx
+```
+
+**Restart specific services:**
+```bash
+# Restart only backend
+docker-compose restart app
+
+# Restart only frontend
+docker-compose restart frontend
+```
+
+**Complete fresh start (wipes all data):**
+```bash
+# Stop containers and remove volumes (deletes database data)
+docker-compose down -v
+
+# Start fresh with new setup
+docker-compose up -d
+```
+
+**Keep containers running but rebuild code:**
+```bash
+# Just rebuild the images
+docker-compose build
+
+# Then restart to use new images
+docker-compose up -d
 ```
 
 #### Docker Troubleshooting
