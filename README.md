@@ -101,15 +101,17 @@ The easiest way to run this project is using Docker. All services are containeri
    This single command will:
    - Build and start 5 services (Frontend, Backend, Nginx, MariaDB, PhpMyAdmin)
    - Set up networking between containers
-   - Initialize the database
-   - **Automatically run database migrations and seeders (first time only)**
+   - **Automatically create database** (`technical_test`)
+   - **Automatically run migrations and seeders** (first time only)
    - **Automatically create storage link**
    - Configure all environment variables automatically
 
    **Smart Setup Behavior:**
-   - ✅ **First run** (empty database) → Runs migrations and seeders
-   - ✅ **Restart/rebuild** (existing database) → Skips migrations, preserves your data
-   - ✅ **Fresh start** (`docker-compose down -v`) → Wipes database and runs full setup again
+   - ✅ **First run** (no database) → Creates database + runs migrations + seeds data
+   - ✅ **Restart/rebuild** (existing database) → Skips everything, preserves your data
+   - ✅ **Fresh start** (`docker-compose down -v`) → Creates database + full setup again
+
+   **Zero Manual Configuration Required!**
 
 3. **Access the application:**
    - **Frontend**: [http://localhost:3000](http://localhost:3000)

@@ -16,23 +16,32 @@ The Docker setup includes a health check for the MariaDB database that:
 
 The Laravel container runs an entrypoint script ([backend/docker-entrypoint.sh](backend/docker-entrypoint.sh)) that automatically:
 
-1. **Waits for Database** - Sleeps for 10 seconds to allow database to initialize
-2. **Checks Database Status** - Looks for the `migrations` table to determine if setup is needed
-3. **First-Time Setup Only** - If migrations table doesn't exist:
+1. **Waits for Database Server** - Sleeps for 10 seconds to allow database server to initialize
+2. **Creates Database** - Automatically creates the `technical_test` database if it doesn't exist
+3. **Checks Database Status** - Looks for the `migrations` table to determine if setup is needed
+4. **First-Time Setup** - If database is empty or migrations table doesn't exist:
    - Runs migrations: `php artisan migrate --force`
    - Seeds database: `php artisan db:seed --force` (test users and sample products)
    - Creates storage link: `php artisan storage:link`
-4. **Subsequent Restarts** - If database already initialized:
-   - Skips migrations and seeders
+5. **Subsequent Restarts** - If database already initialized:
+   - Skips database creation and migrations
    - Only ensures storage link exists
-5. **Always Optimizes** - Clears configuration, cache, and route cache on every startup
-6. **Starts PHP-FPM** - Launches the PHP application server
+6. **Always Optimizes** - Clears configuration, cache, and route cache on every startup
+7. **Starts PHP-FPM** - Launches the PHP application server
 
 **Smart Behavior:**
-- ✅ First run with empty database → Full setup (migrations + seeders)
-- ✅ Container restart with existing data → Skips setup, preserves data
+- ✅ First run (no database) → Creates database + runs migrations + seeds data
+- ✅ Empty database exists → Runs migrations + seeds data
+- ✅ Container restart with existing data → Skips everything, preserves data
 - ✅ Rebuild containers (`--build`) → Keeps existing database data
-- ✅ Fresh database (`docker-compose down -v`) → Full setup again
+- ✅ Fresh start (`docker-compose down -v`) → Creates database + full setup again
+
+**No Manual Steps Required:**
+- ❌ No need to manually create database
+- ❌ No need to manually run `php artisan migrate`
+- ❌ No need to manually run `php artisan db:seed`
+- ❌ No need to manually run `php artisan storage:link`
+- ✅ Just run `docker-compose up -d` and everything works!
 
 ## Modified Files
 
@@ -40,9 +49,11 @@ The Laravel container runs an entrypoint script ([backend/docker-entrypoint.sh](
 A bash script that runs all setup tasks before starting PHP-FPM.
 
 **Key Features:**
+- **Automatic Database Creation** - Creates the database if it doesn't exist
 - **Smart Detection** - Checks if migrations table exists to determine if setup is needed
-- **One-Time Setup** - Only runs migrations/seeders on first launch
+- **One-Time Setup** - Only runs migrations/seeders on first launch or when database is empty
 - **Data Preservation** - Container rebuilds don't affect existing database data
+- **Environment Variable Support** - Uses `.env` values for DB_DATABASE, DB_HOST, DB_USERNAME, DB_PASSWORD
 - **Clear Progress Messages** - Shows what's being done during startup
 - **Graceful Handling** - Handles storage link conflicts gracefully
 
