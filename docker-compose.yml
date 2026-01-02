@@ -18,7 +18,8 @@ services:
     networks:
       - fullstack-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   # Nginx Web Server
   nginx:
@@ -52,6 +53,11 @@ services:
       - ./backend/docker/mysql/my.cnf:/etc/mysql/my.cnf
     networks:
       - fullstack-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   # PhpMyAdmin
   phpmyadmin:
